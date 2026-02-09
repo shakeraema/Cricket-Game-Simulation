@@ -1,0 +1,228 @@
+/* Toss Page Styling */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #043d5e 0%, #0891b2 100%);
+  padding: 2rem;
+}
+
+.content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.card h1 {
+  margin: 0 0 1.5rem 0;
+  color: #043d5e;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.matchInfo {
+  background: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.matchInfo h2 {
+  margin: 0 0 1rem 0;
+  color: #2d3748;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.matchInfo p {
+  margin: 0.5rem 0;
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.coinSection {
+  margin: 2rem 0;
+}
+
+.coinButton {
+  padding: 1.5rem 3rem;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.coinButton:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.coinButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.coinAnimation {
+  font-size: 4rem;
+  margin: 2rem 0;
+  animation: flip 1s ease-in-out;
+}
+
+@keyframes flip {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(1080deg); }
+}
+
+.winnerSection {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+.winnerSection h3 {
+  margin: 0 0 0.5rem 0;
+  color: #065f46;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.winnerText {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #047857;
+  margin: 0;
+}
+
+.decisionSection {
+  margin-top: 2rem;
+}
+
+.decisionButtons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.decisionButton {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+}
+
+.decisionButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.decisionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.batButton {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.batButtonSelected {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.bowlButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.bowlButtonSelected {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.popupContent {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.popupContent h2 {
+  margin: 0 0 1rem 0;
+  color: #043d5e;
+  font-size: 1.75rem;
+}
+
+.popupContent p {
+  margin: 0 0 2rem 0;
+  color: #4a5568;
+  font-size: 1.1rem;
+}
+
+.startButton {
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, #043d5e 0%, #0891b2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.startButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: white;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .decisionButtons {
+    flex-direction: column;
+  }
+  
+  .decisionButton {
+    width: 100%;
+  }
+  
+  .card h1 {
+    font-size: 1.5rem;
+  }
+}

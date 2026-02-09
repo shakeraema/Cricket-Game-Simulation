@@ -1,0 +1,32 @@
+.setup {
+    padding: 32px 0;
+}
+
+.form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 280px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.select {
+    margin-top: 4px;
+}
+
+.startBtn {
+    margin-top: 10px;
+    padding: 8px;
+    color: #fff;
+    font-size: 16px;
+    border: 3px solid #ffffff;
+    border-radius: 50px;
+    cursor: pointer;
+    background-color:rgb(8, 137, 115);
+}

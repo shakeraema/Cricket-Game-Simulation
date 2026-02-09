@@ -1,0 +1,151 @@
+/* Modern Landing Page Styling */
+.landingContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #043d5e 0%, #0891b2 100%);
+  padding: 2rem;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 4rem;
+  color: white;
+  padding: 3rem 0;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero p {
+  font-size: 1.3rem;
+  color: #f0f0f0;
+  margin-bottom: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.8;
+}
+
+.contentWrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.featuresSection {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.featuresSection h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: #2d3748;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.featureList li {
+  font-size: 1.15rem;
+  line-height: 2;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  color: #4a5568;
+}
+
+.featureList li:last-child {
+  border-bottom: none;
+}
+
+.ctaSection {
+  background: white;
+  padding: 3rem;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.ctaSection h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.ctaSection p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #4a5568;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ctaButton {
+  padding: 1rem 3rem;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.ctaButtonPrimary {
+  background: linear-gradient(135deg, #043d5e 0%, #064e73 100%);
+  color: white;
+}
+
+.ctaButtonSuccess {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  color: white;
+}
+
+.footer {
+  margin-top: 3rem;
+  text-align: center;
+  color: white;
+  font-size: 1rem;
+  padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+  }
+
+  .ctaButtons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ctaButton {
+    width: 100%;
+  }
+}

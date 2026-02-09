@@ -1,0 +1,46 @@
+/* .dashboard {
+    padding: 32px 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.createBtn {
+    padding: 8px 14px;
+    border: 1px solid #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.subTitle {
+    margin-top: 30px;
+}
+
+.list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    padding: 14px;
+}
+
+.meta {
+    font-size: 13px;
+    color: #555;
+}
+
+.link {
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.empty {
+    color: #777;
+} */

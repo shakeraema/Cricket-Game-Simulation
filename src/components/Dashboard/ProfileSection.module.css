@@ -1,0 +1,46 @@
+.profileSection {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.profileSection h2 {
+  margin: 0 0 1.5rem 0;
+  color: #043d5e;
+  font-size: 1.5rem;
+}
+
+.profileContent {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.profileImage {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileInfo p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.authProvider {
+  color: #999 !important;
+  font-size: 0.9em !important;
+}
+
+@media (max-width: 640px) {
+  .profileContent {
+    flex-direction: column;
+    text-align: center;
+  }
+}
