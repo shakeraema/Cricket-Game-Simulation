@@ -20,8 +20,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <header style={{ padding: "16px", borderBottom: "1px solid #ddd" }}>
           <h2>🏏 Cricket Simulation</h2>
         </header>

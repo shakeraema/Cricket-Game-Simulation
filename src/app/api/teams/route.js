@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Team from "@/models/Team";
+import { apiResponse, parseJsonBody } from "@/utils/apiResponse";
+import { requireAdminAuth } from "@/middleware/authMiddleware";
 
 /**
  * GET /api/teams
@@ -10,43 +11,40 @@ export async function GET() {
   try {
     await connectDB();
     const teams = await Team.find().sort({ name: 1 });
-    return NextResponse.json(teams);
+    return apiResponse.success("Teams fetched successfully", teams);
   } catch (error) {
     console.error("Fetch teams error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch teams" },
-      { status: 500 },
-    );
+    return apiResponse.error("Failed to fetch teams", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
 }
 
 /**
  * POST /api/teams
- * Create a new team (for admin/seeding)
+ * Create a new team (admin-only)
  */
 export async function POST(request) {
+  const auth = await requireAdminAuth(request);
+  if (!auth.authorized) return auth.response;
+
   try {
+    const parsedBody = await parseJsonBody(request);
+    if (!parsedBody.ok) return parsedBody.response;
+
     await connectDB();
-    const body = await request.json();
+    const body = parsedBody.data;
 
     const { name, country, players } = body;
 
     if (!name || !country || !players || players.length === 0) {
-      return NextResponse.json(
-        { error: "Name, country, and players are required" },
-        { status: 400 },
-      );
+      return apiResponse.badRequest("Name, country, and players are required");
     }
 
     const team = new Team({ name, country, players });
     await team.save();
 
-    return NextResponse.json(team, { status: 201 });
+    return apiResponse.success("Team created successfully", team, 201);
   } catch (error) {
     console.error("Create team error:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to create team" },
-      { status: 500 },
-    );
+    return apiResponse.error("Failed to create team", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
 }

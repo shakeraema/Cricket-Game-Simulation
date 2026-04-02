@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMatch } from "@/hooks/useMatch";
+import { apiPost } from "@/lib/apiClient";
 import { ROUTES } from "@/constants/routes";
 import styles from "./TossPage.module.css";
 
@@ -14,6 +15,32 @@ export default function TossPage({ matchId }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedDecision, setSelectedDecision] = useState(null);
   const [message, setMessage] = useState("");
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [coinFace, setCoinFace] = useState("HEADS");
+
+  const teamMap = {
+    teamA: match?.teamA,
+    teamB: match?.teamB,
+  };
+  const selectedTeamName = selectedTeam ? teamMap[selectedTeam] : null;
+
+  const runCoinFlip = () => {
+    if (!match || actionLoading || isFlipping || selectedTeam) return;
+
+    setIsFlipping(true);
+    setSelectedDecision(null);
+    setMessage("");
+
+    const winner = Math.random() < 0.5 ? "teamA" : "teamB";
+    const face = winner === "teamA" ? "HEADS" : "TAILS";
+
+    setTimeout(() => {
+      setCoinFace(face);
+      setSelectedTeam(winner);
+      setIsFlipping(false);
+      setMessage(`🎉 ${teamMap[winner]} won the toss. Choose bat or bowl.`);
+    }, 2200);
+  };
 
   // Handle redirects in useEffect
   useEffect(() => {
@@ -62,26 +89,20 @@ export default function TossPage({ matchId }) {
     setMessage("");
 
     try {
-      const res = await fetch("/api/match/toss", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matchId,
-          winningTeam: selectedTeam,
-          decision: selectedDecision,
-        }),
+      const data = await apiPost("/api/match/toss", {
+        matchId,
+        tossWinner: selectedTeam,
+        decision: selectedDecision,
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        setMessage("❌ " + (error.error || "Failed to record toss"));
+      if (!data?.success) {
+        setMessage("❌ " + (data?.message || "Failed to record toss"));
         setActionLoading(false);
         return;
       }
 
-      const data = await res.json();
       // Optimistic update
-      await mutate(data.match, false);
+      await mutate(data.data.match, false);
       
       // Redirect will be handled by useEffect when match data updates
       setMessage("✅ Toss recorded! Redirecting...");
@@ -93,89 +114,108 @@ export default function TossPage({ matchId }) {
 
   return (
     <main className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1>🏏 Coin Toss</h1>
-        <button 
-          onClick={() => router.push(ROUTES.DASHBOARD)}
-          className={styles.backButton}
-        >
-          ↩ Back
-        </button>
-      </div>
-
-      {/* Match Info */}
-      <div className={styles.matchInfo}>
-        <p><strong>Match ID:</strong> {matchId}</p>
-      </div>
-
-      {/* Teams Card */}
-      <div className={styles.card}>
-        <h2>Select Winning Team</h2>
-        <div className={styles.teamGrid}>
-          {match.team1 && (
-            <button
-              className={`${styles.teamButton} ${selectedTeam === match.team1 ? styles.selected : ""}`}
-              onClick={() => setSelectedTeam(match.team1)}
-              disabled={actionLoading}
-            >
-              {match.team1}
-            </button>
-          )}
-          {match.team2 && (
-            <button
-              className={`${styles.teamButton} ${selectedTeam === match.team2 ? styles.selected : ""}`}
-              onClick={() => setSelectedTeam(match.team2)}
-              disabled={actionLoading}
-            >
-              {match.team2}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Decision Card */}
-      {selectedTeam && (
-        <div className={styles.card}>
-          <h2>{selectedTeam} decides to...</h2>
-          <div className={styles.decisionGrid}>
-            <button
-              className={`${styles.decisionButton} ${selectedDecision === "bat" ? styles.selected : ""}`}
-              onClick={() => setSelectedDecision("bat")}
-              disabled={actionLoading}
-            >
-              🏏 Bat First
-            </button>
-            <button
-              className={`${styles.decisionButton} ${selectedDecision === "bowl" ? styles.selected : ""}`}
-              onClick={() => setSelectedDecision("bowl")}
-              disabled={actionLoading}
-            >
-              🎯 Bowl First
-            </button>
+      <section className={styles.stack}>
+        <div className={styles.headerCard}>
+          <div>
+            <p className={styles.kicker}>Match Setup</p>
+            <h1 className={styles.title}>Coin Toss Arena</h1>
+            <p className={styles.subtitle}>Flip the coin and lock in the innings decision.</p>
           </div>
-        </div>
-      )}
-
-      {/* Message */}
-      {message && (
-        <div className={`${styles.message} ${message.includes("❌") ? styles.error : styles.success}`}>
-          {message}
-        </div>
-      )}
-
-      {/* Action Button */}
-      {selectedTeam && selectedDecision && (
-        <div className={styles.actionSection}>
           <button
-            onClick={handleToss}
-            disabled={actionLoading}
-            className={styles.submitButton}
+            onClick={() => router.push(ROUTES.DASHBOARD)}
+            className={styles.backButton}
           >
-            {actionLoading ? "Recording..." : "✅ Confirm Toss"}
+            Back to Dashboard
           </button>
         </div>
-      )}
+
+        <div className={styles.card}>
+          <h2>Match Info</h2>
+          <div className={styles.matchInfoGrid}>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Match ID</span>
+              <span className={styles.infoValue}>{matchId}</span>
+            </div>
+            <div className={styles.infoItem}>
+              <span className={styles.infoLabel}>Overs</span>
+              <span className={styles.infoValue}>{match.oversLimit}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.card}>
+          <h2>Teams</h2>
+          <div className={styles.teamGrid}>
+            <div className={`${styles.teamPill} ${selectedTeam === "teamA" ? styles.activeTeam : ""}`}>
+              <span className={styles.teamTag}>Team A</span>
+              <span>{match.teamA}</span>
+            </div>
+            <div className={`${styles.teamPill} ${selectedTeam === "teamB" ? styles.activeTeam : ""}`}>
+              <span className={styles.teamTag}>Team B</span>
+              <span>{match.teamB}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.card}>
+          <h2>Flip The Coin</h2>
+          <div className={styles.coinArea}>
+            <div className={`${styles.coin} ${isFlipping ? styles.flipping : ""}`}>
+              <div className={styles.coinFace}>{coinFace}</div>
+            </div>
+            <button
+              className={styles.flipButton}
+              onClick={runCoinFlip}
+              disabled={isFlipping || actionLoading || !!selectedTeam}
+            >
+              {isFlipping ? "Flipping..." : "Flip Coin"}
+            </button>
+            {selectedTeamName && !isFlipping && (
+              <p className={styles.winnerText}>Toss Winner: {selectedTeamName}</p>
+            )}
+          </div>
+        </div>
+
+        {selectedTeam && (
+          <div className={styles.card}>
+            <h2>{selectedTeamName} decides to...</h2>
+            <div className={styles.decisionGrid}>
+              <button
+                className={`${styles.decisionButton} ${selectedDecision === "bat" ? styles.selected : ""}`}
+                onClick={() => setSelectedDecision("bat")}
+                disabled={actionLoading || isFlipping}
+              >
+                Bat First
+              </button>
+              <button
+                className={`${styles.decisionButton} ${selectedDecision === "bowl" ? styles.selected : ""}`}
+                onClick={() => setSelectedDecision("bowl")}
+                disabled={actionLoading || isFlipping}
+              >
+                Bowl First
+              </button>
+            </div>
+          </div>
+        )}
+
+        {message && (
+          <div className={`${styles.message} ${message.includes("❌") ? styles.messageError : styles.messageSuccess}`}>
+            {message}
+          </div>
+        )}
+
+        {selectedTeam && selectedDecision && (
+          <div className={styles.actionSection}>
+            <button
+              onClick={handleToss}
+              disabled={actionLoading || isFlipping}
+              className={styles.submitButton}
+            >
+              {actionLoading ? "Recording..." : "Confirm Toss Result"}
+            </button>
+          </div>
+        )}
+      </section>
     </main>
   );
 }

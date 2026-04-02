@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { teams } from "@/lib/teams";
+import { apiPost } from "@/lib/apiClient";
 import styles from "./CreateMatch.module.css";
 
 export default function CreateMatch() {
@@ -30,12 +31,20 @@ if (tossDecision === "bat") {
   battingTeam = tossWinner === teamA ? teamB : teamA;
 }
 
-    const res = await fetch("/api/match/create", {
-      method: "POST",
-      body: JSON.stringify({ teamA, teamB, overs, tossWinner, tossDecision, battingTeam, bowlingTeam }),
+    const data = await apiPost("/api/match/create", {
+      teamA,
+      teamB,
+      overs,
+      tossWinner,
+      tossDecision,
+      battingTeam,
+      bowlingTeam,
     });
-    const match = await res.json();
-    window.location.href = `/match/${match._id}`;
+    if (!data?.success) {
+      alert(data?.message || "Failed to create match");
+      return;
+    }
+    window.location.href = `/match/${data.data.matchId}`;
   }
 
   return (

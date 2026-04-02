@@ -1,19 +1,23 @@
-import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Team from "@/models/Team";
+import { apiResponse } from "@/utils/apiResponse";
+import { requireAdminAuth } from "@/middleware/authMiddleware";
 
 /**
  * POST /api/admin/seed-teams
- * Seed initial teams (for development only) - after that teams can be added via admin panel anytime
+ * Seed initial teams (admin-only, for development)
  */
-export async function POST() {
+export async function POST(request) {
+  const auth = await requireAdminAuth(request);
+  if (!auth.authorized) return auth.response;
   try {
     await connectDB();
     const existingTeams = await Team.countDocuments();
     if (existingTeams > 0) {
-      return NextResponse.json(
-        { message: "Teams already exist", count: existingTeams },
-        { status: 200 },
+      return apiResponse.success(
+        "Teams already exist",
+        { count: existingTeams },
+        200,
       );
     }
 
@@ -124,9 +128,9 @@ export async function POST() {
 
     const createdTeams = await Team.insertMany(teamsData);
 
-    return NextResponse.json(
+    return apiResponse.success(
+      "Teams seeded successfully",
       {
-        message: "Teams seeded successfully",
         count: createdTeams.length,
         teams: createdTeams.map((t) => ({
           name: t.name,
@@ -134,13 +138,10 @@ export async function POST() {
           players: t.players.length,
         })),
       },
-      { status: 201 },
+      201,
     );
   } catch (error) {
     console.error("Seed teams error:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to seed teams" },
-      { status: 500 },
-    );
+    return apiResponse.error("Failed to seed teams", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
 }

@@ -1,18 +1,27 @@
 import { requireAuth } from "@/middleware/authMiddleware";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse, parseJsonBody } from "@/utils/apiResponse";
 import { connectDB } from "@/lib/db";
 import { completeToss, getMatchById } from "@/services/matchService";
 
 export async function POST(req) {
-  const auth = await requireAuth();
+  const auth = await requireAuth(req);
   if (!auth.authorized) return auth.response;
 
   try {
-    const { matchId, decision, tossWinner } = await req.json();
+    const parsedBody = await parseJsonBody(req);
+    if (!parsedBody.ok) return parsedBody.response;
 
-    if (!matchId || !decision || !tossWinner) {
+    const { matchId, decision, tossWinner } = parsedBody.data;
+    const validTossWinners = ["teamA", "teamB"];
+    const validDecisions = ["bat", "bowl"];
+
+    if (
+      typeof matchId !== "string" ||
+      !validTossWinners.includes(tossWinner) ||
+      !validDecisions.includes(decision)
+    ) {
       return apiResponse.badRequest(
-        "Match ID, decision, and toss winner required",
+        "Invalid payload. Expected { matchId: string, tossWinner: \"teamA\" | \"teamB\", decision: \"bat\" | \"bowl\" }",
       );
     }
 
@@ -34,21 +43,23 @@ export async function POST(req) {
       return apiResponse.badRequest("Toss already completed");
     }
 
-    // Validate toss winner is one of the teams
-    if (tossWinner !== match.teamA && tossWinner !== match.teamB) {
-      return apiResponse.badRequest("Invalid toss winner");
-    }
+    const selectedTossWinnerName =
+      tossWinner === "teamA" ? match.teamA : match.teamB;
 
-    const updatedMatch = await completeToss(matchId, tossWinner, decision);
+    const updatedMatch = await completeToss(
+      matchId,
+      selectedTossWinnerName,
+      decision,
+    );
 
-    return apiResponse.success({
-      message: "Toss completed",
-      tossWinner: tossWinner,
-      decision: decision,
+    return apiResponse.success("Toss completed", {
+      tossWinner,
+      tossWinnerName: selectedTossWinnerName,
+      decision,
       match: updatedMatch,
     });
   } catch (error) {
     console.error("Toss error:", error);
-    return apiResponse.error(error.message || "Failed to complete toss");
+    return apiResponse.error("Failed to complete toss", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
 }

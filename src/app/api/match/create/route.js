@@ -1,14 +1,17 @@
 import { requireAuth } from "@/middleware/authMiddleware";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse, parseJsonBody } from "@/utils/apiResponse";
 import { connectDB } from "@/lib/db";
 import { createMatch } from "@/services/matchService";
 
 export async function POST(req) {
-  const auth = await requireAuth();
+  const auth = await requireAuth(req);
   if (!auth.authorized) return auth.response;
 
   try {
-    const body = await req.json();
+    const parsedBody = await parseJsonBody(req);
+    if (!parsedBody.ok) return parsedBody.response;
+
+    const body = parsedBody.data;
     const { teamA, teamB, overs } = body || {};
 
     if (!teamA || !teamB || !overs) {
@@ -28,9 +31,13 @@ export async function POST(req) {
       userId: auth.userId,
     });
 
-    return apiResponse.success({ matchId: match._id }, 201);
+    return apiResponse.success(
+      "Match created successfully",
+      { matchId: match._id },
+      201,
+    );
   } catch (error) {
     console.error("Create match error:", error);
-    return apiResponse.error(error.message || "Failed to create match");
+    return apiResponse.error("Failed to create match", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
 }

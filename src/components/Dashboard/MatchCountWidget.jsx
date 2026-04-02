@@ -1,19 +1,48 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { connectDB } from "@/lib/db";
-import Match from "@/models/Match";
+"use client";
 
-export default async function MatchCountWidget() {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) return "0";
+/**
+ * Match Count Widget
+ * Fully decoupled from NextAuth
+ * Fetches match count via API using Bearer token
+ */
 
-    await connectDB();
-    const userId = session.user.id || session.user._id;
-    
-    const count = await Match.countDocuments({ createdBy: userId });
-    return count;
-  } catch {
-    return "0";
-  }
+import { useEffect, useState } from "react";
+import { apiGet } from "@/lib/apiClient";
+
+export default function MatchCountWidget() {
+  const [count, setCount] = useState("0");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMatchCount = async () => {
+      try {
+        const token = typeof window !== "undefined" && localStorage.getItem("authToken");
+        
+        if (!token) {
+          setCount("0");
+          setLoading(false);
+          return;
+        }
+
+        // Fetch match history to count matches
+        const response = await apiGet("/api/match/history", token);
+        
+        if (response?.success && Array.isArray(response.data)) {
+          setCount(response.data.length.toString());
+        } else {
+          setCount("0");
+        }
+      } catch (error) {
+        console.error("Failed to fetch match count:", error);
+        setCount("0");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMatchCount();
+  }, []);
+
+  if (loading) return "...";
+  return count;
 }

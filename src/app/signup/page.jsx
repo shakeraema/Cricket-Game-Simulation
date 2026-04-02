@@ -1,11 +1,18 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+/**
+ * Signup Page
+ * Fully decoupled from NextAuth - API-based registration and login
+ */
+
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { apiPost, setAuthToken } from "@/lib/apiClient";
 import styles from "./Signup.module.css";
 import Link from "next/link";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -15,39 +22,51 @@ export default function SignupPage() {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const name = formData.get("name");
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        body: JSON.stringify({
-          name: formData.get("name"),
-          email: formData.get("email"),
-          password: formData.get("password"),
-        }),
-        headers: { "Content-Type": "application/json" },
+      // Register user
+      const registerData = await apiPost("/api/auth/register", {
+        name,
+        email,
+        password,
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "Failed to sign up");
+      if (!registerData?.success) {
+        setError(registerData?.message || "Failed to sign up");
         setIsLoading(false);
         return;
       }
 
       // Auto-login after signup
-      const result = await signIn("credentials", {
-        email: formData.get("email"),
-        password: formData.get("password"),
-        redirect: true,
-        callbackUrl: "/dashboard",
+      const loginData = await apiPost("/api/auth/login", {
+        email,
+        password,
       });
 
-      if (!result?.ok) {
-        setError("Login failed after signup. Please try logging in manually.");
+      if (!loginData?.success) {
+        setError("Sign up successful! Please log in manually.");
         setIsLoading(false);
+        router.push("/login");
+        return;
+      }
+
+      const token = loginData.data?.token;
+      if (token) {
+        setAuthToken(token);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("authToken", token);
+        }
+        router.push("/dashboard");
+      } else {
+        setError("Login after signup failed. Please log in manually.");
+        setIsLoading(false);
+        router.push("/login");
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError(err.message || "An error occurred. Please try again.");
       setIsLoading(false);
     }
   }
@@ -57,30 +76,15 @@ export default function SignupPage() {
       <div className={styles.card}>
         <h1 className={styles.title}>Create Account</h1>
 
-        <button
-          className={styles.oauthButtonGoogle}
-          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-        >
-          Sign up with Google
-        </button>
-
-        <button
-          className={styles.oauthButtonGithub}
-          onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-        >
-          Sign up with GitHub
-        </button>
-
-        <div className={styles.divider}>OR</div>
-
         {error && <p className={styles.error}>{error}</p>}
 
         <form className={styles.form} onSubmit={handleSignup}>
           <input
             className={styles.input}
             name="name"
-            placeholder="Name"
+            placeholder="Full Name"
             required
+            disabled={isLoading}
           />
           <input
             className={styles.input}
@@ -88,17 +92,19 @@ export default function SignupPage() {
             type="email"
             placeholder="Email"
             required
+            disabled={isLoading}
           />
           <input
             className={styles.input}
             name="password"
             type="password"
-            placeholder="Password"
+            placeholder="Password (min. 6 characters)"
             required
+            disabled={isLoading}
           />
 
           <button className={styles.submitButton} type="submit" disabled={isLoading}>
-            {isLoading ? "Signing up..." : "Sign Up"}
+            {isLoading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 

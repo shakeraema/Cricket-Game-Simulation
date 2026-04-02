@@ -1,14 +1,17 @@
 import { requireAuth } from "@/middleware/authMiddleware";
-import { apiResponse } from "@/utils/apiResponse";
+import { apiResponse, parseJsonBody } from "@/utils/apiResponse";
 import { connectDB } from "@/lib/db";
 import { resumeMatch, getMatchById } from "@/services/matchService";
 
 export async function POST(req) {
-  const auth = await requireAuth();
+  const auth = await requireAuth(req);
   if (!auth.authorized) return auth.response;
 
   try {
-    const { matchId } = await req.json();
+    const parsedBody = await parseJsonBody(req);
+    if (!parsedBody.ok) return parsedBody.response;
+
+    const { matchId } = parsedBody.data;
 
     if (!matchId) {
       return apiResponse.badRequest("Match ID required");
@@ -32,9 +35,9 @@ export async function POST(req) {
 
     await resumeMatch(matchId);
 
-    return apiResponse.success({ message: "Match resumed successfully" });
+    return apiResponse.success("Match resumed successfully", { matchId });
   } catch (error) {
     console.error("Resume error:", error);
-    return apiResponse.error(error.message || "Failed to resume match");
+    return apiResponse.error("Failed to resume match", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
 }

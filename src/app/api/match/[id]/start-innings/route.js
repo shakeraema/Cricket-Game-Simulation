@@ -9,11 +9,9 @@ import { connectDB } from "@/lib/db.js";
  */
 export async function POST(request, { params }) {
   try {
-    // 1. Authenticate user
-    const auth = await requireAuth();
+    const auth = await requireAuth(request);
     if (!auth.authorized) return auth.response;
 
-    // 2. Get match ID
     const { id: matchId } = await params;
 
     if (!matchId) {
@@ -22,23 +20,22 @@ export async function POST(request, { params }) {
 
     await connectDB();
 
-    // 3. Verify ownership
     const match = await getMatchById(matchId);
-    if (!match || match.createdBy.toString() !== auth.userId) {
+    if (!match) {
+      return apiResponse.notFound("Match not found");
+    }
+
+    if (match.createdBy.toString() !== auth.userId) {
       return apiResponse.forbidden();
     }
 
-    // 4. Start second innings
     const updatedMatch = await startSecondInnings(matchId);
 
-    // 5. Return success
-    return apiResponse.success({
-      success: true,
-      message: "Second innings started successfully",
+    return apiResponse.success("Second innings started successfully", {
       match: updatedMatch,
     });
   } catch (error) {
     console.error("Start innings error:", error);
-    return apiResponse.error(error.message || "Failed to start second innings");
+    return apiResponse.error("Failed to start second innings", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
 }

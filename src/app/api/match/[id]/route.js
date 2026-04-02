@@ -4,28 +4,31 @@ import { connectDB } from "@/lib/db";
 import Match from "@/models/Match";
 
 export async function GET(req, context) {
-  const auth = await requireAuth();
-  if (!auth.authorized) return auth.response;
+  try {
+    const auth = await requireAuth(req);
+    if (!auth.authorized) return auth.response;
 
-  // ✅ FIX: params is async in Next 15
-  const { id } = await context.params;
+    const { id } = await context.params;
 
-  if (!id) {
-    return apiResponse.badRequest("Match ID missing");
+    if (!id) {
+      return apiResponse.badRequest("Match ID missing");
+    }
+
+    await connectDB();
+
+    const match = await Match.findById(id);
+
+    if (!match) {
+      return apiResponse.notFound("Match not found");
+    }
+
+    if (match.createdBy.toString() !== auth.userId) {
+      return apiResponse.forbidden();
+    }
+
+    return apiResponse.success("Match fetched successfully", match);
+  } catch (error) {
+    console.error("Get match error:", error);
+    return apiResponse.error("Failed to fetch match", error.message || "INTERNAL_SERVER_ERROR", 500);
   }
-
-  await connectDB();
-
-  const match = await Match.findById(id);
-
-  if (!match) {
-    return apiResponse.notFound("Match not found");
-  }
-
-  // 🔒 OWNERSHIP CHECK
-  if (match.createdBy.toString() !== auth.userId) {
-    return apiResponse.forbidden();
-  }
-
-  return apiResponse.success(match);
 }

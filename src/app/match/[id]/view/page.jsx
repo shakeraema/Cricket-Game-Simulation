@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiGet } from "@/lib/apiClient";
 import styles from "./MatchView.module.css";
 
 export default function MatchViewPage() {
@@ -15,22 +16,22 @@ export default function MatchViewPage() {
   useEffect(() => {
     async function fetchMatch() {
       try {
-        const res = await fetch(`/api/match/${id}`);
+        const data = await apiGet(`/api/match/${id}`);
 
-        if (!res.ok) {
+        if (!data?.success) {
           router.push("/dashboard");
           return;
         }
 
-        const data = await res.json();
+        const matchPayload = data?.data;
 
         // Only allow viewing completed matches
-        if (data.status !== "COMPLETED") {
+        if (matchPayload?.status !== "COMPLETED") {
           router.push(`/match/${id}/play`);
           return;
         }
 
-        setMatch(data);
+        setMatch(matchPayload);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching match:", err);

@@ -1,16 +1,27 @@
+"use client";
+
+/**
+ * Landing Page
+ * Fully decoupled from server-side session logic
+ * Client-side authentication check using localStorage
+ */
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { redirect } from "next/navigation";
 import styles from "./Landing.module.css";
 
-export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+export default function HomePage() {
+  const router = useRouter();
 
-  // If already logged in, redirect to dashboard
-  if (session) {
-    redirect("/dashboard");
-  }
+  useEffect(() => {
+    // Redirect authenticated users; page is still usable without token.
+    const token = typeof window !== "undefined" && localStorage.getItem("authToken");
+
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, [router]);
 
   return (
     <main className={styles.landingContainer}>
@@ -48,15 +59,11 @@ export default async function HomePage() {
             </Link>
             
             <Link href="/signup">
-              <button className={`${styles.ctaButton} ${styles.ctaButtonSuccess}`}>
-                Create Account
+              <button className={`${styles.ctaButton} ${styles.ctaButtonSecondary}`}>
+                Sign Up
               </button>
             </Link>
           </div>
-        </section>
-
-        <section className={styles.footer}>
-          <p>Works well on mobile and desktop • Secure sign-in • Fast gameplay</p>
         </section>
       </div>
     </main>

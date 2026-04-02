@@ -145,7 +145,7 @@ export default function MyComponent({ matchId }) {
     const data = await res.json();
 
     // Update local cache immediately
-    await mutate(data.match, false);
+    await mutate(data.data.match, false);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -154,6 +154,10 @@ export default function MyComponent({ matchId }) {
 ```
 
 ## 📋 API Endpoints
+
+Full API contract, schemas, and auth details:
+
+- [API Contract](./docs/api-contract.md)
 
 ### Match Endpoints
 
@@ -179,6 +183,7 @@ export default function MyComponent({ matchId }) {
 ## 📖 Further Documentation
 
 - [Refactoring Summary](./REFACTORING_SUMMARY.md) - Detailed breakdown of changes
+- [API Contract](./docs/api-contract.md) - Request/response schemas, auth, and status codes
 
 ---
 

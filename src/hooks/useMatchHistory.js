@@ -2,15 +2,16 @@
  * Custom hook for match history fetching with SWR
  */
 import useSWR from "swr";
+import { apiGet } from "@/lib/apiClient";
 
 const fetcher = async (url) => {
-  const res = await fetch(url);
+  const payload = await apiGet(url);
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch match history");
+  if (!payload?.success) {
+    throw new Error(payload?.message || "Failed to fetch match history");
   }
 
-  return res.json();
+  return payload.data;
 };
 
 export function useMatchHistory() {

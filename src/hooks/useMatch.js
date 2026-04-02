@@ -2,18 +2,18 @@
  * Custom hook for match data fetching with SWR
  */
 import useSWR from "swr";
+import { apiGet } from "@/lib/apiClient";
 
 const fetcher = async (url) => {
-  const res = await fetch(url);
+  const payload = await apiGet(url);
 
-  if (!res.ok) {
+  if (!payload?.success) {
     const error = new Error("An error occurred while fetching the data.");
-    error.info = await res.json();
-    error.status = res.status;
+    error.info = payload;
     throw error;
   }
 
-  return res.json();
+  return payload.data;
 };
 
 export function useMatch(matchId, options = {}) {

@@ -7,6 +7,7 @@ export default function ProfileSection({ user }) {
       
       <div className={styles.profileContent}>
         {user.image && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={user.image}
             alt="Profile"
@@ -19,6 +20,7 @@ export default function ProfileSection({ user }) {
         <div className={styles.profileInfo}>
           <p><strong>Name:</strong> {user.name}</p>
           <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Role:</strong> {user.role || "user"}</p>
           {user.image && (
             <p className={styles.authProvider}>
               Logged in via {user.image ? "OAuth" : "Credentials"}

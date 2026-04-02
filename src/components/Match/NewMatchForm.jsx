@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTeams } from "@/hooks/useTeams";
+import { apiPost } from "@/lib/apiClient";
 import styles from "./NewMatchForm.module.css";
 
 export default function NewMatchForm() {
@@ -27,28 +28,19 @@ export default function NewMatchForm() {
     setCreating(true);
 
     try {
-      const res = await fetch("/api/match/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teamA, teamB, overs }),
+      const data = await apiPost("/api/match/create", {
+        teamA,
+        teamB,
+        overs,
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        alert("Server error while creating match");
+      if (!data?.success) {
+        alert(data?.message || "Failed to create match");
         setCreating(false);
         return;
       }
 
-      if (!res.ok) {
-        alert(data.error || "Failed to create match");
-        setCreating(false);
-        return;
-      }
-
-      router.push(`/match/${data.matchId}`);
+      router.push(`/match/${data.data.matchId}`);
     } catch (error) {
       alert("Error: " + error.message);
       setCreating(false);

@@ -1,7 +1,7 @@
 // src/services/matchService.js
 import { connectDB } from "@/lib/db";
 import Match from "@/models/Match";
-import User from "@/models/User";
+// import User from "@/models/User";
 import Team from "@/models/Team";
 
 /**

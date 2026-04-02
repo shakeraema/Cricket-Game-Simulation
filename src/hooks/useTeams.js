@@ -2,15 +2,16 @@
  * Custom hook for teams data fetching with SWR
  */
 import useSWR from "swr";
+import { apiGet } from "@/lib/apiClient";
 
 const fetcher = async (url) => {
-  const res = await fetch(url);
+  const payload = await apiGet(url);
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch teams");
+  if (!payload?.success) {
+    throw new Error(payload?.message || "Failed to fetch teams");
   }
 
-  return res.json();
+  return payload.data;
 };
 
 export function useTeams() {

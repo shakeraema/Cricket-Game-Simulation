@@ -19,6 +19,12 @@ const UserSchema = new mongoose.Schema(
     password: String, // only for credentials login
 
     matchHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Match" }],
+
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
   },
   { timestamps: true },
 );

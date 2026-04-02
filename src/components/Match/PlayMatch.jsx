@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMatch } from "@/hooks/useMatch";
+import { apiPost } from "@/lib/apiClient";
 import { ROUTES } from "@/constants/routes";
 import styles from "./PlayMatch.module.css";
 
@@ -93,30 +94,23 @@ export default function PlayMatch({ matchId }) {
     setMessage("");
 
     try {
-      const res = await fetch("/api/match/play-ball", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId }),
-      });
+      const data = await apiPost("/api/match/play-ball", { matchId });
 
-      if (!res.ok) {
+      if (!data?.success) {
         let errorMsg = "Cannot play ball";
-        try {
-          const err = await res.json();
-          errorMsg = err?.error || errorMsg;
-        } catch {}
+        errorMsg = data?.message || errorMsg;
         setMessage("❌ " + errorMsg);
         setActionLoading(false);
         return;
       }
 
-      const data = await res.json();
+      const updatedMatch = data.data.match;
       
       // Optimistic UI update - update local state immediately
-      await mutate(data.match, false);
+      await mutate(updatedMatch, false);
 
       // Show the last ball result
-      const ballLog = data.match.innings[data.match.currentInnings].ballLog;
+      const ballLog = updatedMatch.innings[updatedMatch.currentInnings].ballLog;
       if (ballLog.length > 0) {
         const lastBall = ballLog[ballLog.length - 1];
         if (lastBall.outcome === "W") {
@@ -127,7 +121,7 @@ export default function PlayMatch({ matchId }) {
       }
 
       // Check if innings completed
-      if (data.match.innings[data.match.currentInnings].completed) {
+      if (updatedMatch.innings[updatedMatch.currentInnings].completed) {
         setShowEndPopup(true);
       }
     } catch (error) {
@@ -140,13 +134,9 @@ export default function PlayMatch({ matchId }) {
   // Pause Match Handler
   const pauseMatch = async () => {
     try {
-      const res = await fetch("/api/match/pause", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId }),
-      });
+      const data = await apiPost("/api/match/pause", { matchId });
 
-      if (res.ok) {
+      if (data?.success) {
         await mutate(); // Revalidate match data
       }
     } catch (error) {
@@ -157,13 +147,9 @@ export default function PlayMatch({ matchId }) {
   // Resume Match Handler
   const resumeMatch = async () => {
     try {
-      const res = await fetch("/api/match/resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId }),
-      });
+      const data = await apiPost("/api/match/resume", { matchId });
 
-      if (res.ok) {
+      if (data?.success) {
         await mutate(); // Revalidate match data
       }
     } catch (error) {
@@ -174,11 +160,9 @@ export default function PlayMatch({ matchId }) {
   // Start Second Innings Handler
   const startSecondInnings = async () => {
     try {
-      const res = await fetch(`/api/match/${matchId}/start-innings`, {
-        method: "POST",
-      });
+      const data = await apiPost(`/api/match/${matchId}/start-innings`, {});
 
-      if (!res.ok) {
+      if (!data?.success) {
         alert("Failed to start second innings");
         return;
       }
