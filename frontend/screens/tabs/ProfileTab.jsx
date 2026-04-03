@@ -21,15 +21,24 @@ export default function ProfileTab({ session, navigation, onLogout }) {
 
       {/* Avatar Section */}
       <View style={styles.avatarSection}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
+        <View style={styles.avatarMeta}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+          <View style={styles.avatarInfo}>
+            <Text style={styles.userName}>{user?.name || "User"}</Text>
+            <Text style={styles.userRole}>
+              {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Player"}
+            </Text>
+          </View>
         </View>
-        <View style={styles.avatarInfo}>
-          <Text style={styles.userName}>{user?.name || "User"}</Text>
-          <Text style={styles.userRole}>
-            {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Player"}
-          </Text>
-        </View>
+
+        <Pressable
+          onPress={onLogout}
+          style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </Pressable>
       </View>
 
       {/* Account Information Card */}
@@ -70,12 +79,6 @@ export default function ProfileTab({ session, navigation, onLogout }) {
         </View>
       </View>
 
-      <Pressable
-        onPress={onLogout}
-        style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
-      >
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </Pressable>
     </SafeAreaView>
   );
 }
@@ -92,15 +95,23 @@ const styles = StyleSheet.create({
   avatarSection: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
+    marginTop: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+  },
+  avatarMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    paddingRight: 12,
   },
   avatar: {
     width: 64,
@@ -230,12 +241,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   logoutButton: {
-    marginTop: 12,
     backgroundColor: "#043d5e",
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 999,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

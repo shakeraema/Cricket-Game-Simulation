@@ -170,13 +170,15 @@ export default function MatchViewScreen({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.headerContainer}>
         <AppHeader
           navigation={navigation}
           title="Match Details"
           subtitle="Full scoreboard and result"
         />
+      </View>
 
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Match Info</Text>
           <View style={styles.infoRow}>
@@ -326,9 +328,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8fafc",
   },
-  content: {
+  headerContainer: {
     paddingHorizontal: 16,
     paddingTop: 12,
+    paddingBottom: 8,
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingTop: 0,
     paddingBottom: 20,
     gap: 14,
   },
