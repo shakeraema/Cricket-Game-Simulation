@@ -76,7 +76,17 @@ export async function restoreSession() {
     return null;
   }
 
-  setAuthToken(token);
+  // Only restore token if it appears to be a valid JWT (has 3 parts separated by dots)
+  if (typeof token === 'string' && token.split('.').length === 3) {
+    setAuthToken(token);
+  } else {
+    // Invalid token format - clear it
+    console.warn('Invalid token format found in storage, clearing...');
+    clearAuthToken();
+    await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
+    await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    return null;
+  }
 
   let user = null;
   const userJson = await AsyncStorage.getItem(USER_STORAGE_KEY);

@@ -44,6 +44,13 @@ API.interceptors.response.use(
   },
   (err) => {
     console.log("[API ERR]", err?.message, err?.config?.url, err?.response?.status, err?.response?.data);
+    
+    // If we get a 401, it means the token is invalid or expired
+    // Clear it so the user is logged out and can log in again
+    if (err?.response?.status === 401) {
+      clearAuthToken();
+    }
+    
     return Promise.reject(err);
   }
 );

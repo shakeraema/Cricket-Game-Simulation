@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { getMatchHistory } from "../../services/api";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../components/AppHeader";
@@ -143,6 +144,12 @@ export default function PreviousMatchesTab({ navigation }) {
   useEffect(() => {
     loadHistory();
   }, [loadHistory]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory();
+    }, [loadHistory])
+  );
 
   if (loading) {
     return (
